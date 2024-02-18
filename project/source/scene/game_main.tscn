@@ -1,0 +1,105 @@
+[gd_scene load_steps=12 format=3 uid="uid://b3gxdy6v8ibd6"]
+
+[ext_resource type="Texture2D" uid="uid://dv5q0o08qb2xj" path="res://assets/tile/grass_0.png" id="1_25sct"]
+[ext_resource type="Texture2D" uid="uid://ce6gtx10tmphh" path="res://assets/tile/stone_0.png" id="2_arxpa"]
+[ext_resource type="Texture2D" uid="uid://xgu2mcpshjsw" path="res://assets/tile/water_0.png" id="3_gyxty"]
+[ext_resource type="Texture2D" uid="uid://chl2yn5amf7ja" path="res://assets/tile/tree_0.png" id="4_rt74m"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ojufd"]
+texture = ExtResource("1_25sct")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lk5es"]
+texture = ExtResource("2_arxpa")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_djthl"]
+texture = ExtResource("3_gyxty")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t0k4t"]
+texture = ExtResource("4_rt74m")
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_ie1s0"]
+sources/0 = SubResource("TileSetAtlasSource_ojufd")
+sources/1 = SubResource("TileSetAtlasSource_lk5es")
+sources/2 = SubResource("TileSetAtlasSource_djthl")
+sources/4 = SubResource("TileSetAtlasSource_t0k4t")
+
+[sub_resource type="GDScript" id="GDScript_wjr00"]
+script/source = "
+extends TileMap
+
+var map_border = 256
+
+func _ready():
+	# 海拔
+	var altitude_noise = FastNoiseLite.new()
+	altitude_noise.seed = randi()
+	# 植被
+	var vegetation_noise = FastNoiseLite.new()
+	vegetation_noise.seed = randi()
+	
+	for x in range(map_border):
+		for y in range(map_border):
+			# 海拔
+			var altitude_value = (altitude_noise.get_noise_2d(x, y)+0.5)*10
+			# 水
+			if -10 <= altitude_value and altitude_value < 3:
+				set_cell(0,Vector2(x, y),2,Vector2(0,0),0)
+			# 草地
+			if 3 <= altitude_value and altitude_value < 7:
+				set_cell(0,Vector2(x, y),0,Vector2(0,0),0)
+			# 山
+			if 7 <= altitude_value and altitude_value < 20:
+				set_cell(0,Vector2(x, y),1,Vector2(0,0),0)
+			# 植被
+			var vegetation_value = (vegetation_noise.get_noise_2d(x, y)+0.5)*10
+			# 草地树
+			if 3 <= altitude_value and altitude_value < 7:
+				if 3 <= vegetation_value and vegetation_value < 7:
+					set_cell(1,Vector2(x, y),4,Vector2(0,0),0)
+"
+
+[sub_resource type="GDScript" id="GDScript_s3soj"]
+script/source = "
+extends Camera2D
+
+var move_speed = 10
+var zoom_speed = 0.06
+
+func _process(delta):
+
+	if Input.is_action_pressed(\"up\"):
+		position.y -= move_speed
+	if Input.is_action_pressed(\"down\"):
+		position.y += move_speed
+	if Input.is_action_pressed(\"left\"):
+		position.x -= move_speed
+	if Input.is_action_pressed(\"right\"):
+		position.x += move_speed
+		
+	if Input.is_action_just_pressed(\"zoom_in\"):
+		zoom.x += zoom_speed
+		zoom.y += zoom_speed
+	if Input.is_action_just_pressed(\"zoom_out\"):
+		if zoom.x > 0.1 and zoom.y > 0.1:
+			zoom.x -= zoom_speed
+			zoom.y -= zoom_speed
+"
+
+[node name="GameMain" type="Node"]
+
+[node name="TileMap" type="TileMap" parent="."]
+texture_filter = 1
+tile_set = SubResource("TileSet_ie1s0")
+format = 2
+layer_0/name = "Land"
+layer_1/name = "Vegetation"
+layer_1/tile_data = PackedInt32Array()
+script = SubResource("GDScript_wjr00")
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(576, 324)
+script = SubResource("GDScript_s3soj")

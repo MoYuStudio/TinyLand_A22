@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3 uid="uid://bwydaptimi6rc"]
+
+[ext_resource type="FontFile" uid="uid://dwo3w3m0bti6d" path="res://assets/font/YouSheBiaoTiHei.ttf" id="1_k20rw"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xdybs"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p76ga"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_y42g2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jyg1c"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wkrqk"]
+
+[sub_resource type="GDScript" id="GDScript_t4qjr"]
+script/source = "
+extends Button
+
+func _pressed():
+	# get_tree().change_scene_to_file('res://source/scene/game_main.tscn')
+	SceneTransition.change_scene('black','res://source/scene/game_main.tscn')
+"
+
+[node name="MenuMain" type="Node"]
+
+[node name="Label" type="Label" parent="."]
+texture_filter = 1
+offset_left = 729.0
+offset_top = 509.0
+offset_right = 3120.0
+offset_bottom = 1178.0
+theme_override_fonts/font = ExtResource("1_k20rw")
+theme_override_font_sizes/font_size = 256
+text = "花生迷途
+Peanut's Journey"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="."]
+offset_left = 1768.0
+offset_top = 1406.0
+offset_right = 2135.0
+offset_bottom = 1748.0
+theme_override_fonts/font = ExtResource("1_k20rw")
+theme_override_font_sizes/font_size = 128
+theme_override_styles/normal = SubResource("StyleBoxEmpty_xdybs")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_p76ga")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_y42g2")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_jyg1c")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wkrqk")
+text = "开始
+Start
+"
+flat = true
+script = SubResource("GDScript_t4qjr")
