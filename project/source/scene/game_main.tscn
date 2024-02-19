@@ -1,9 +1,15 @@
-[gd_scene load_steps=12 format=3 uid="uid://b3gxdy6v8ibd6"]
+[gd_scene load_steps=22 format=3 uid="uid://b3gxdy6v8ibd6"]
 
 [ext_resource type="Texture2D" uid="uid://dv5q0o08qb2xj" path="res://assets/tile/grass_0.png" id="1_25sct"]
 [ext_resource type="Texture2D" uid="uid://ce6gtx10tmphh" path="res://assets/tile/stone_0.png" id="2_arxpa"]
 [ext_resource type="Texture2D" uid="uid://xgu2mcpshjsw" path="res://assets/tile/water_0.png" id="3_gyxty"]
+[ext_resource type="Texture2D" uid="uid://ogmx6tov2o6k" path="res://assets/tile/water_1.png" id="4_jqmoi"]
 [ext_resource type="Texture2D" uid="uid://chl2yn5amf7ja" path="res://assets/tile/tree_0.png" id="4_rt74m"]
+[ext_resource type="Texture2D" uid="uid://d18s6cjj1o82u" path="res://assets/tile/choose_0.png" id="5_kbbq4"]
+[ext_resource type="Texture2D" uid="uid://fq2il82k0txg" path="res://assets/tile/water_2.png" id="6_myqk7"]
+[ext_resource type="Theme" uid="uid://dsces8hjhqvyl" path="res://interface/theme.tres" id="8_7i4cb"]
+[ext_resource type="PackedScene" uid="uid://ddry8cgqm4ehn" path="res://source/object/tile.tscn" id="8_81ads"]
+[ext_resource type="Texture2D" uid="uid://cp0nxpttxkpiv" path="res://assets/tile/feller_0.png" id="8_mr87k"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ojufd"]
 texture = ExtResource("1_25sct")
@@ -17,21 +23,43 @@ texture = ExtResource("2_arxpa")
 texture = ExtResource("3_gyxty")
 0:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yfomq"]
+texture = ExtResource("4_jqmoi")
+0:0/0 = 0
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t0k4t"]
 texture = ExtResource("4_rt74m")
 0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_us4cq"]
+texture = ExtResource("6_myqk7")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g1uu1"]
+texture = ExtResource("8_mr87k")
+0:0/0 = 0
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_ww4us"]
+scenes/1/scene = ExtResource("8_81ads")
 
 [sub_resource type="TileSet" id="TileSet_ie1s0"]
 sources/0 = SubResource("TileSetAtlasSource_ojufd")
 sources/1 = SubResource("TileSetAtlasSource_lk5es")
 sources/2 = SubResource("TileSetAtlasSource_djthl")
 sources/4 = SubResource("TileSetAtlasSource_t0k4t")
+sources/3 = SubResource("TileSetAtlasSource_yfomq")
+sources/5 = SubResource("TileSetAtlasSource_us4cq")
+sources/6 = SubResource("TileSetAtlasSource_g1uu1")
+sources/7 = SubResource("TileSetScenesCollectionSource_ww4us")
 
 [sub_resource type="GDScript" id="GDScript_wjr00"]
 script/source = "
 extends TileMap
 
-var map_border = 256
+@onready var camera = get_parent().get_node(\"Camera\")
+@onready var choose_tile = $Choose
+
+var map_border = 128
 
 func _ready():
 	# 海拔
@@ -46,10 +74,14 @@ func _ready():
 			# 海拔
 			var altitude_value = (altitude_noise.get_noise_2d(x, y)+0.5)*10
 			# 水
-			if -10 <= altitude_value and altitude_value < 3:
+			if -10 <= altitude_value and altitude_value < 1:
 				set_cell(0,Vector2(x, y),2,Vector2(0,0),0)
+			if 1 <= altitude_value and altitude_value < 3:
+				set_cell(0,Vector2(x, y),3,Vector2(0,0),0)
+			if 3 <= altitude_value and altitude_value < 4:
+				set_cell(0,Vector2(x, y),5,Vector2(0,0),0)
 			# 草地
-			if 3 <= altitude_value and altitude_value < 7:
+			if 4 <= altitude_value and altitude_value < 7:
 				set_cell(0,Vector2(x, y),0,Vector2(0,0),0)
 			# 山
 			if 7 <= altitude_value and altitude_value < 20:
@@ -57,9 +89,21 @@ func _ready():
 			# 植被
 			var vegetation_value = (vegetation_noise.get_noise_2d(x, y)+0.5)*10
 			# 草地树
-			if 3 <= altitude_value and altitude_value < 7:
+			if 4 <= altitude_value and altitude_value < 7:
 				if 3 <= vegetation_value and vegetation_value < 7:
 					set_cell(1,Vector2(x, y),4,Vector2(0,0),0)
+
+func _process(delta):
+	var mouse_pos = get_global_mouse_position()
+	var tile_pos = map_to_local(local_to_map(
+		Vector2(mouse_pos.x,mouse_pos.y)))
+	tile_pos = Vector2((tile_pos.x)/16, (tile_pos.y)/16)
+	
+	# set_cell(0,Vector2(tile_pos.x, tile_pos.y),-1,Vector2(0,0),0)
+	choose_tile.position = map_to_local(tile_pos)
+	
+	if Input.is_mouse_button_pressed(1):
+		set_cell(1,Vector2(tile_pos.x, tile_pos.y),7,Vector2(0,0),1)
 "
 
 [sub_resource type="GDScript" id="GDScript_s3soj"]
@@ -72,13 +116,13 @@ var zoom_speed = 0.06
 func _process(delta):
 
 	if Input.is_action_pressed(\"up\"):
-		position.y -= move_speed
+		offset.y -= move_speed
 	if Input.is_action_pressed(\"down\"):
-		position.y += move_speed
+		offset.y += move_speed
 	if Input.is_action_pressed(\"left\"):
-		position.x -= move_speed
+		offset.x -= move_speed
 	if Input.is_action_pressed(\"right\"):
-		position.x += move_speed
+		offset.x += move_speed
 		
 	if Input.is_action_just_pressed(\"zoom_in\"):
 		zoom.x += zoom_speed
@@ -100,6 +144,181 @@ layer_1/name = "Vegetation"
 layer_1/tile_data = PackedInt32Array()
 script = SubResource("GDScript_wjr00")
 
+[node name="Choose" type="Sprite2D" parent="TileMap"]
+modulate = Color(1, 1, 1, 0.588235)
+texture = ExtResource("5_kbbq4")
+
 [node name="Camera" type="Camera2D" parent="."]
-position = Vector2(576, 324)
 script = SubResource("GDScript_s3soj")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TileBar" type="Panel" parent="CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -640.0
+offset_top = -97.0
+offset_right = 640.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("8_7i4cb")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 376.0
+offset_bottom = 80.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/TileBar/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 72
+
+[node name="Tile" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile"]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("8_mr87k")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile/MarginContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+text = "Feller"
+flat = true
+
+[node name="Tile2" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile2"]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile2/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("8_mr87k")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile2/MarginContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile2/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+text = "Feller"
+flat = true
+
+[node name="Tile3" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile3"]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile3/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("8_mr87k")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile3/MarginContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile3/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+text = "Feller"
+flat = true
+
+[node name="Tile4" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile4"]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile4/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("8_mr87k")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile4/MarginContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile4/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+text = "Feller"
+flat = true
+
+[node name="Tile5" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile5"]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile5/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("8_mr87k")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile5/MarginContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile5/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+text = "Feller"
+flat = true
+
+[node name="Tile6" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile6"]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile6/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("8_mr87k")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile6/MarginContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/TileBar/MarginContainer/HBoxContainer/Tile6/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+text = "Feller"
+flat = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2

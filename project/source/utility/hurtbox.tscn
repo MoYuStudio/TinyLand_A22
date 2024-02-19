@@ -67,7 +67,6 @@ script = SubResource("GDScript_j67s4")
 wait_time = 0.5
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
-bus = &"SFX"
 
 [node name="GPUParticles" type="GPUParticles2D" parent="."]
 
