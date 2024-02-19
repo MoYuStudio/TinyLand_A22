@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://b3gxdy6v8ibd6"]
+[gd_scene load_steps=23 format=3 uid="uid://b3gxdy6v8ibd6"]
 
 [ext_resource type="Texture2D" uid="uid://dv5q0o08qb2xj" path="res://assets/tile/grass_0.png" id="1_25sct"]
 [ext_resource type="Texture2D" uid="uid://ce6gtx10tmphh" path="res://assets/tile/stone_0.png" id="2_arxpa"]
@@ -10,6 +10,7 @@
 [ext_resource type="Theme" uid="uid://dsces8hjhqvyl" path="res://interface/theme.tres" id="8_7i4cb"]
 [ext_resource type="PackedScene" uid="uid://ddry8cgqm4ehn" path="res://source/object/tile.tscn" id="8_81ads"]
 [ext_resource type="Texture2D" uid="uid://cp0nxpttxkpiv" path="res://assets/tile/feller_0.png" id="8_mr87k"]
+[ext_resource type="Texture2D" uid="uid://c40q8goes4g03" path="res://assets/icon/wood_0.png" id="11_k0mux"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ojufd"]
 texture = ExtResource("1_25sct")
@@ -103,7 +104,9 @@ func _process(delta):
 	choose_tile.position = map_to_local(tile_pos)
 	
 	if Input.is_mouse_button_pressed(1):
-		set_cell(1,Vector2(tile_pos.x, tile_pos.y),7,Vector2(0,0),1)
+		if get_cell_source_id(1,Vector2(tile_pos.x, tile_pos.y)) == -1:
+			if get_cell_source_id(0,Vector2(tile_pos.x, tile_pos.y)) == 0:
+				set_cell(1,Vector2(tile_pos.x, tile_pos.y),7,Vector2(0,0),1)
 "
 
 [sub_resource type="GDScript" id="GDScript_s3soj"]
@@ -146,6 +149,8 @@ script = SubResource("GDScript_wjr00")
 
 [node name="Choose" type="Sprite2D" parent="TileMap"]
 modulate = Color(1, 1, 1, 0.588235)
+z_index = 1
+texture_filter = 1
 texture = ExtResource("5_kbbq4")
 
 [node name="Camera" type="Camera2D" parent="."]
@@ -160,9 +165,8 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -640.0
-offset_top = -97.0
+offset_top = -96.0
 offset_right = 640.0
-offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 0
 theme = ExtResource("8_7i4cb")
@@ -316,9 +320,37 @@ layout_mode = 2
 text = "Feller"
 flat = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
+[node name="Infor" type="Panel" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme = ExtResource("8_7i4cb")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Infor"]
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/VBoxContainer"]
+[node name="Wood" type="Panel" parent="CanvasLayer/Infor/VBoxContainer"]
 layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Infor/VBoxContainer/Wood"]
+layout_mode = 2
+offset_right = 128.0
+offset_bottom = 64.0
+
+[node name="Sprite" type="Sprite2D" parent="CanvasLayer/Infor/VBoxContainer/Wood/MarginContainer"]
+texture_filter = 1
+position = Vector2(32, 32)
+scale = Vector2(4, 4)
+texture = ExtResource("11_k0mux")
+
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/Infor/VBoxContainer/Wood"]
+layout_mode = 0
+offset_left = 64.0
+offset_right = 128.0
+offset_bottom = 64.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Infor/VBoxContainer/Wood/MarginContainer2"]
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "100"

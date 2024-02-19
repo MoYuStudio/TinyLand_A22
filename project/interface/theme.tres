@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=8 format=3 uid="uid://dsces8hjhqvyl"]
+[gd_resource type="Theme" load_steps=9 format=3 uid="uid://dsces8hjhqvyl"]
 
 [ext_resource type="FontFile" uid="uid://ckmyjvou4nb1f" path="res://assets/font/kenney_pixel.ttf" id="1_a7oma"]
 
@@ -69,6 +69,8 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_svpl3"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6fn21"]
 content_margin_left = 0.0
 content_margin_top = 0.0
@@ -104,4 +106,15 @@ Button/styles/focus = SubResource("StyleBoxFlat_3kt0q")
 Button/styles/hover = SubResource("StyleBoxFlat_hqkv2")
 Button/styles/normal = SubResource("StyleBoxFlat_s1blj")
 Button/styles/pressed = SubResource("StyleBoxFlat_kyuav")
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/colors/font_outline_color = Color(1, 1, 1, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 0)
+Label/constants/line_spacing = 3
+Label/constants/outline_size = 0
+Label/constants/shadow_offset_x = 1
+Label/constants/shadow_offset_y = 1
+Label/constants/shadow_outline_size = 1
+Label/font_sizes/font_size = 16
+Label/fonts/font = ExtResource("1_a7oma")
+Label/styles/normal = SubResource("StyleBoxEmpty_svpl3")
 Panel/styles/panel = SubResource("StyleBoxFlat_6fn21")
