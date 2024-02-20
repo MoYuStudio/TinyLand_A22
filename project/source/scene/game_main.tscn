@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b3gxdy6v8ibd6"]
+[gd_scene load_steps=24 format=3 uid="uid://b3gxdy6v8ibd6"]
 
 [ext_resource type="Texture2D" uid="uid://dv5q0o08qb2xj" path="res://assets/tile/grass_0.png" id="1_25sct"]
 [ext_resource type="Texture2D" uid="uid://ce6gtx10tmphh" path="res://assets/tile/stone_0.png" id="2_arxpa"]
@@ -106,7 +106,22 @@ func _process(delta):
 	if Input.is_mouse_button_pressed(1):
 		if get_cell_source_id(1,Vector2(tile_pos.x, tile_pos.y)) == -1:
 			if get_cell_source_id(0,Vector2(tile_pos.x, tile_pos.y)) == 0:
-				set_cell(1,Vector2(tile_pos.x, tile_pos.y),7,Vector2(0,0),1)
+				for tile in get_surrounding_tiles(Vector2(tile_pos.x, tile_pos.y)):
+					if get_cell_source_id(1,tile) == 4:
+						set_cell(1,Vector2(tile_pos.x, tile_pos.y),7,Vector2(0,0),1)
+						break
+
+# 周围瓷砖检测 3x3
+func get_surrounding_tiles(current_tile):
+	var surrounding_tiles =[]
+	var target_tile
+	for y in 3:
+		for x in 3:
+			target_tile = current_tile +Vector2(x-1,y-1)
+			if current_tile == target_tile:
+				continue
+			surrounding_tiles.append(target_tile)
+	return surrounding_tiles
 "
 
 [sub_resource type="GDScript" id="GDScript_s3soj"]
@@ -136,6 +151,21 @@ func _process(delta):
 			zoom.y -= zoom_speed
 "
 
+[sub_resource type="GDScript" id="GDScript_ximlq"]
+script/source = "
+extends Panel
+
+@export var wood = 0
+
+@onready var wood_label = $VBoxContainer/Wood/MarginContainer2/Label
+
+func _ready():
+	pass
+
+func _process(delta):
+	wood_label.text = str(wood)
+"
+
 [node name="GameMain" type="Node"]
 
 [node name="TileMap" type="TileMap" parent="."]
@@ -154,6 +184,7 @@ texture_filter = 1
 texture = ExtResource("5_kbbq4")
 
 [node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(3, 3)
 script = SubResource("GDScript_s3soj")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
@@ -164,11 +195,13 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -640.0
-offset_top = -96.0
-offset_right = 640.0
+offset_left = -1920.0
+offset_top = -288.0
+offset_right = -640.0
+offset_bottom = -192.0
 grow_horizontal = 2
 grow_vertical = 0
+scale = Vector2(3, 3)
 theme = ExtResource("8_7i4cb")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/TileBar"]
@@ -321,11 +354,14 @@ text = "Feller"
 flat = true
 
 [node name="Infor" type="Panel" parent="CanvasLayer"]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 212.0
+offset_bottom = 281.0
+scale = Vector2(3, 3)
 theme = ExtResource("8_7i4cb")
+script = SubResource("GDScript_ximlq")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Infor"]
+layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 

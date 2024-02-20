@@ -1,7 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://b8ab4x0xjqnhi"]
+[gd_scene load_steps=8 format=3 uid="uid://b8ab4x0xjqnhi"]
 
-[ext_resource type="Texture2D" uid="uid://bnmx8pt0nk4u2" path="res://assets/logo/logo.png" id="1_sl5b1"]
-[ext_resource type="AudioStream" uid="uid://bafyvcn6gb683" path="res://assets/sound/excavate_soil.mp3" id="2_ie8sy"]
+[ext_resource type="Texture2D" uid="uid://bibc3y0gghknm" path="res://assets/logo/logo.png" id="1_sl5b1"]
 
 [sub_resource type="GDScript" id="GDScript_6o0tv"]
 script/source = "
@@ -111,6 +110,5 @@ libraries = {
 }
 
 [node name="Audio" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("2_ie8sy")
 volume_db = 6.4
 autoplay = true

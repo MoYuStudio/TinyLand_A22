@@ -11,6 +11,7 @@ extends Node2D
 
 func _process(delta):
 	animation_player.play(\"work\")
+	
 "
 
 [sub_resource type="Animation" id="Animation_btukj"]
